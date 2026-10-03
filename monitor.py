@@ -13,7 +13,7 @@ from zoneinfo import ZoneInfo
 from playwright.sync_api import sync_playwright
 
 URL = "https://bileto.sympla.com.br/"
-TERMO = "Bailacci"
+TERMO = "Alice"
 TZ = ZoneInfo("America/Sao_Paulo")
 PRAZO = datetime(2026, 10, 3, 23, 59, tzinfo=TZ)  # fim do dia de hoje
 NTFY_TOPIC = os.environ["NTFY_TOPIC"]
