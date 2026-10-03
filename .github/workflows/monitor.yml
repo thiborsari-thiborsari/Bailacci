@@ -1,0 +1,46 @@
+name: Monitor Bailacci
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar Playwright
+        run: |
+          pip install playwright
+          python -m playwright install --with-deps chromium
+
+      - name: Buscar Bailacci
+        id: check
+        run: python monitor.py
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+
+      - name: Guardar print da busca
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: resultado
+          path: resultado.png
+          if-no-files-found: ignore
+
+      - name: Encerrar agente (achou ou fim do dia)
+        if: steps.check.outputs.stop == 'true'
+        run: gh workflow disable "${{ github.workflow }}"
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
